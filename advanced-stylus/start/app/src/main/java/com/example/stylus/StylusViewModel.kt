@@ -15,6 +15,7 @@
 */
 package com.example.stylus
 
+import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.ui.graphics.Path
@@ -72,6 +73,18 @@ class StylusViewModel : ViewModel() {
             MotionEvent.ACTION_CANCEL -> {
                 cancelLastStroke()
             }
+            MotionEvent.ACTION_POINTER_UP -> {
+                val shouldCancel = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                        (motionEvent.flags and MotionEvent.FLAG_CANCELED) == MotionEvent.FLAG_CANCELED
+
+                if (shouldCancel) {
+                    cancelLastStroke()
+                } else {
+                    currentPath.add(
+                        DrawPoint(motionEvent.x, motionEvent.y, DrawPointType.LINE)
+                    )
+                }
+            }
 
             else -> return false
         }
@@ -87,6 +100,11 @@ class StylusViewModel : ViewModel() {
     }
 
     private fun cancelLastStroke() {
+        val lastIndex = currentPath.findLastIndex { it.type == DrawPointType.START }
+
+        if (lastIndex > 0) {
+            currentPath  = currentPath.subList(0, lastIndex - 1)
+        }
     }
 
     private fun requestRendering(stylusState: StylusState) {
