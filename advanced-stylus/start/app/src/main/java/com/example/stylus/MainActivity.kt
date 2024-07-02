@@ -30,21 +30,46 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.example.stylus.ui.theme.StylusTheme
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.stylus.ui.StylusState
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: StylusViewModel by viewModels()
     private val strokeStyle = Stroke(10F)
 
+    private var stylusState by mutableStateOf(StylusState())
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.stylusState
+//                    .onEach {
+//                        stylusState = it
+//                    }
+                viewModel.stylusState.collect { state ->
+                    stylusState = state
+                }
+            }
+        }
 
         setContent {
             StylusTheme {
@@ -79,12 +104,22 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-
+    @OptIn(ExperimentalComposeUiApi::class)
     fun DrawArea(modifier: Modifier = Modifier) {
         Canvas(modifier = modifier
             .clipToBounds()
+            .pointerInteropFilter { motionEvent ->
+                viewModel.processMotionEvent(motionEvent)
+            }
 
         ) {
+            with(stylusState) {
+                drawPath(
+                    path = this.path,
+                    color = Color.Gray,
+                    style = strokeStyle
+                )
+            }
 
         }
     }

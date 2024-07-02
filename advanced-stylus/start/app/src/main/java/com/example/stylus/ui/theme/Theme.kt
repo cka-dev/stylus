@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -69,9 +70,13 @@ fun StylusTheme(
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
+        val currentWindow = (view.context as? Activity)?.window
+            ?: throw Exception("Not in an activity - unable to get Window reference")
+
         SideEffect {
             (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
+//            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(currentWindow, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 
