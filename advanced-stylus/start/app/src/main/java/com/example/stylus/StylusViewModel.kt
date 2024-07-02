@@ -48,6 +48,8 @@ class StylusViewModel : ViewModel() {
     }
 
     fun processMotionEvent(motionEvent: MotionEvent): Boolean {
+        val pointerIndex = motionEvent.actionIndex
+
         when (motionEvent.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 currentPath.add(
@@ -75,9 +77,9 @@ class StylusViewModel : ViewModel() {
         }
         requestRendering(
             StylusState(
-                tilt = motionEvent.getAxisValue(MotionEvent.AXIS_TILT),
-                pressure = motionEvent.pressure,
-                orientation = motionEvent.orientation,
+                tilt = motionEvent.getAxisValue(MotionEvent.AXIS_TILT, pointerIndex),
+                pressure = motionEvent.getPressure(pointerIndex),
+                orientation = motionEvent.getOrientation(pointerIndex),
                 path = createPath()
             )
         )

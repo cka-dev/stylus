@@ -15,6 +15,9 @@
 */
 package com.example.stylus
 
+import StylusVisualization.drawOrientation
+import StylusVisualization.drawPressure
+import StylusVisualization.drawTilt
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -99,7 +102,11 @@ class MainActivity : ComponentActivity() {
         Canvas(
             modifier = modifier
         ) {
-
+            with (stylusState) {
+                drawOrientation(this.orientation)
+                drawTilt(this.tilt)
+                drawPressure(this.pressure)
+            }
         }
     }
 
