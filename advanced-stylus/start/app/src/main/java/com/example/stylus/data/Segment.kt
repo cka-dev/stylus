@@ -13,15 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-buildscript {
-    ext {
-        compose_compiler_version = '1.4.0'
-        compose_version = '2023.01.00'
-        kotlin_version = '1.8.0'
-    }
-}// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    id 'com.android.application' version '8.5.0' apply false
-    id 'com.android.library' version '8.5.0' apply false
-    id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
-}
+package com.example.stylus.data
+
+class Segment(val x1: Float, val y1:Float, val x2: Float, val y2: Float)

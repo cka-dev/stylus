@@ -25,6 +25,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,9 +45,12 @@ import androidx.compose.ui.unit.dp
 import com.example.stylus.ui.theme.StylusTheme
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.stylus.gl.FastRenderer
+import com.example.stylus.gl.LowLatencySurfaceView
 import com.example.stylus.ui.StylusState
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -58,9 +62,13 @@ class MainActivity : ComponentActivity() {
 
     private var stylusState by mutableStateOf(StylusState())
 
+    private lateinit var fastRendering: FastRenderer
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fastRendering = FastRenderer(viewModel)
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -90,7 +98,11 @@ class MainActivity : ComponentActivity() {
                             thickness = 1.dp,
                             color = Color.Black,
                         )
-                        DrawArea(modifier = Modifier.fillMaxSize())
+//                        DrawArea(modifier = Modifier.fillMaxSize())
+                        DrawAreaLowLatency(
+                            modifier = Modifier.fillMaxSize()
+                                .background(Color.White)
+                        )
                     }
                 }
             }
@@ -129,5 +141,12 @@ class MainActivity : ComponentActivity() {
             }
 
         }
+    }
+
+    @Composable
+    fun DrawAreaLowLatency(modifier: Modifier = Modifier) {
+        AndroidView (factory ={ context ->
+            LowLatencySurfaceView(context, fastRendering)
+        }, modifier = modifier)
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.lifecycle.ViewModel
 import com.example.stylus.data.DrawPoint
 import com.example.stylus.data.DrawPointType
+import com.example.stylus.data.Segment
 import com.example.stylus.ui.StylusState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +35,8 @@ class StylusViewModel : ViewModel() {
 
     private var _stylusState = MutableStateFlow(StylusState())
     val stylusState: StateFlow<StylusState> = _stylusState.asStateFlow()
+
+    val openGlLines = mutableListOf<List<Segment>>()
 
     private fun createPath(): Path {
         val path = Path()
@@ -111,6 +114,20 @@ class StylusViewModel : ViewModel() {
         _stylusState.update {
             return@update stylusState
         }
+    }
+
+    private fun createStylusState(motionEvent: MotionEvent): StylusState {
+        return StylusState(
+            tilt = motionEvent.getAxisValue(MotionEvent.AXIS_TILT),
+            pressure = motionEvent.pressure,
+            orientation = motionEvent.orientation
+        )
+    }
+
+    fun updateStylusVisualization(motionEvent: MotionEvent) {
+        requestRendering(
+            createStylusState(motionEvent)
+        )
     }
 }
 
